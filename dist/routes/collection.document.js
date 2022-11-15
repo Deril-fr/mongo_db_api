@@ -19,18 +19,17 @@ function Route(app, client) {
      */
     app.post('/:database/:collection', (req, res) => __awaiter(this, void 0, void 0, function* () {
         const db = client.db(req.params.database);
-        const collection = db.collection(req.params.collection);
+        const collection = yield db.collection(req.params.collection);
         const body = req.body;
         if (JSON.stringify(body).length > 0) {
-            collection.insertOne(body);
-            res.send({
+            return res.send({
                 message: "Collection created",
                 status: "OK",
                 data: yield collection.insertOne(body)
             });
         }
         else {
-            res.send({
+            return res.send({
                 message: "Collection created",
                 status: "OK",
                 data: yield collection.insertOne({})
@@ -40,9 +39,9 @@ function Route(app, client) {
     // Get a document by its id
     app.get('/:database/:collection/document/:id', (req, res) => __awaiter(this, void 0, void 0, function* () {
         const db = client.db(req.params.database);
-        const collection = db.collection(req.params.collection);
+        const collection = yield db.collection(req.params.collection);
         const document = yield collection.findOne({ _id: new mongodb_1.ObjectId(req.params.id) });
-        res.send({
+        return res.send({
             message: "Document fetched",
             status: "OK",
             data: document
@@ -53,11 +52,11 @@ function Route(app, client) {
      */
     app.put('/:database/:collection/document/:id', (req, res) => __awaiter(this, void 0, void 0, function* () {
         const db = client.db(req.params.database);
-        const collection = db.collection(req.params.collection);
+        const collection = yield db.collection(req.params.collection);
         const document = yield collection.findOne({ _id: new mongodb_1.ObjectId(req.params.id) });
         const body = req.body;
         const updatedDocument = yield collection.updateOne({ _id: new mongodb_1.ObjectId(req.params.id) }, { $set: body });
-        res.send({
+        return res.send({
             message: "Document updated",
             status: "OK",
             data: updatedDocument
@@ -68,18 +67,18 @@ function Route(app, client) {
      */
     app.delete('/:database/:collection/document/:id', (req, res) => __awaiter(this, void 0, void 0, function* () {
         const db = client.db(req.params.database);
-        const collection = db.collection(req.params.collection);
+        const collection = yield db.collection(req.params.collection);
         const document = yield collection.findOne({ _id: new mongodb_1.ObjectId(req.params.id) });
         if (document) {
             const deletedDocument = yield collection.deleteOne({ _id: document._id });
-            res.send({
+            return res.send({
                 message: "Document deleted",
                 status: "OK",
                 data: deletedDocument
             });
         }
         else {
-            res.send({
+            return res.send({
                 message: "Document not found",
                 status: "OK",
                 data: {}
@@ -94,10 +93,10 @@ function Route(app, client) {
      */
     app.delete('/:database/:collection', (req, res) => __awaiter(this, void 0, void 0, function* () {
         const db = client.db(req.params.database);
-        const collection = db.collection(req.params.collection);
+        const collection = yield db.collection(req.params.collection);
         const body = req.body;
-        const deletedDocument = yield collection.deleteOne(body);
-        res.send({
+        const deletedDocument = yield collection.deleteMany(body);
+        return res.send({
             message: "Document deleted",
             status: "OK",
             data: deletedDocument

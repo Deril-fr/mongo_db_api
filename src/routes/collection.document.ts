@@ -10,17 +10,16 @@ export function Route(app: Express, client: MongoClient) {
      */
     app.post('/:database/:collection', async (req, res) => {
         const db = client.db(req.params.database);
-        const collection = db.collection(req.params.collection);
+        const collection = await db.collection(req.params.collection);
         const body = req.body;
         if(JSON.stringify(body).length > 0) {
-            collection.insertOne(body);
-            res.send({
+            return res.send({
                 message: "Collection created",
                 status: "OK",
                 data: await collection.insertOne(body)
             });
         }else{
-            res.send({
+            return res.send({
                 message: "Collection created",
                 status: "OK",
                 data: await collection.insertOne({})
@@ -31,9 +30,9 @@ export function Route(app: Express, client: MongoClient) {
     // Get a document by its id
     app.get('/:database/:collection/document/:id', async (req, res) => {
         const db = client.db(req.params.database);
-        const collection = db.collection(req.params.collection);
+        const collection = await db.collection(req.params.collection);
         const document = await collection.findOne({_id: new ObjectId(req.params.id)});
-        res.send({
+        return res.send({
             message: "Document fetched",
             status: "OK",
             data: document
@@ -46,11 +45,11 @@ export function Route(app: Express, client: MongoClient) {
      */
     app.put('/:database/:collection/document/:id', async (req, res) => {
         const db = client.db(req.params.database);
-        const collection = db.collection(req.params.collection);
+        const collection = await db.collection(req.params.collection);
         const document = await collection.findOne({_id: new ObjectId(req.params.id)});
         const body = req.body;
         const updatedDocument = await collection.updateOne({_id: new ObjectId(req.params.id)}, {$set: body});
-        res.send({
+        return res.send({
             message: "Document updated",
             status: "OK",
             data: updatedDocument
@@ -63,17 +62,17 @@ export function Route(app: Express, client: MongoClient) {
      */
     app.delete('/:database/:collection/document/:id', async (req, res) => {
         const db = client.db(req.params.database);
-        const collection = db.collection(req.params.collection);
+        const collection =await  db.collection(req.params.collection);
         const document = await collection.findOne({_id: new ObjectId(req.params.id)});
         if(document){
         const deletedDocument = await collection.deleteOne({_id: document._id });
-        res.send({
+        return res.send({
             message: "Document deleted",
             status: "OK",
             data: deletedDocument
         });
         }else{
-            res.send({
+        return res.send({
             message: "Document not found",
             status: "OK",
             data: {}
@@ -90,10 +89,10 @@ export function Route(app: Express, client: MongoClient) {
 
     app.delete('/:database/:collection', async (req, res) => {
         const db = client.db(req.params.database);
-        const collection = db.collection(req.params.collection);
+        const collection = await db.collection(req.params.collection);
         const body = req.body;
-        const deletedDocument = await collection.deleteOne(body);
-        res.send({
+        const deletedDocument = await collection.deleteMany(body);
+        return res.send({
             message: "Document deleted",
             status: "OK",
             data: deletedDocument
